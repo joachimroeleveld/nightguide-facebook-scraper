@@ -74,9 +74,12 @@ class FacebookEventsPipeline(object):
 
         try:
             ng_api.update_venue_facebook_events(venue_id, data)
-
-            for fb_event_id, image_url in images:
-                ng_api.update_facebook_event_image(fb_event_id, image_url)
         except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
             logging.exception('API error during pipeline closing')
+
+        for fb_event_id, image_url in images:
+            try:
+                ng_api.update_facebook_event_image(fb_event_id, image_url)
+            except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
+                logging.exception('API error during pipeline closing')
 

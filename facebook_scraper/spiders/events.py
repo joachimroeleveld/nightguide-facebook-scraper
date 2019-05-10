@@ -41,6 +41,7 @@ class EventsSpider(CrawlSpider):
                 url = EVENTS_URL.format(venue=venue['facebook']['id'])
                 kwargs = self.get_request_conf()
                 kwargs['meta']['venue'] = venue
+                kwargs['meta']['req_conf'] = kwargs
                 yield Request(url=url, callback=self.parse, **kwargs)
 
         return [self.init(init_cb)]
@@ -57,9 +58,9 @@ class EventsSpider(CrawlSpider):
                 callback=self.parse
             )
 
-        conf = self.get_request_conf()
+        conf = response.meta['req_conf'].copy()
         conf['meta']['venue'] = response.meta['venue']
-        conf['meta']['organiser_name'] = response.xpath("//h1/div/span[1]/text()").get()
+        conf['meta']['organiser_name'] = response.xpath("//div[@id='event_header']/following-sibling::div[1]//h3[1]/text()").get()
 
         # Fetch events
         for event in event_list:

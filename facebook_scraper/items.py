@@ -60,6 +60,15 @@ def dates_in(self, dates, loader_context):
     return list(parsed)
 
 
+def count_in(self, count):
+    multiplier = 1
+    count = count.replace('.', '')
+    if 'K' in count:
+        count = count.replace('K', '')
+        multiplier = 1000
+    return int(count) * multiplier
+
+
 class FacebookEventLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
@@ -67,3 +76,6 @@ class FacebookEventLoader(ItemLoader):
 
     dates_in = dates_in
     dates_out = format_dates
+
+    interested_count_in = count_in
+    going_count_in = count_in
