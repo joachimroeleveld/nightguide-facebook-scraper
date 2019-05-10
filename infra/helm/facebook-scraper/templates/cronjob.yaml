@@ -1,0 +1,26 @@
+{{- $dot := . -}}
+{{- range .Values.cities }}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: facebook-scraper-{{ .country }}-{{ .city }}
+spec:
+  schedule: {{ .schedule }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: scrapy
+              image: {{ $dot.Values.repository }}/{{ $dot.Values.tag }}
+              args:
+                - /bin/sh
+                - -c
+                - scrapy
+                - -a country={{ .country }}
+                - -a city={{ .city }}
+              envFrom:
+                - secretRef:
+                    name: facebook-scraper-env
+          restartPolicy: OnFailure
+{{- end }}

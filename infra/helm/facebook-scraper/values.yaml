@@ -1,0 +1,9 @@
+image:
+  repository:
+  tag:
+
+cities:
+  - city: Utrecht
+    country: NL
+    schedule: "0 2 * * *"
+

@@ -1,0 +1,38 @@
+steps:
+
+  # Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', '${_IMAGE_REPO}/facebook-scraper', '.' ]
+
+    # Tag image with git tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'tag', '${_IMAGE_REPO}/facebook-scraper', '${_IMAGE_REPO}/facebook-scraper:$TAG_NAME']
+
+    # Push image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_IMAGE_REPO}/facebook-scraper' ]
+
+    # Push image tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_IMAGE_REPO}/facebook-scraper:$TAG_NAME' ]
+
+    # Push chart to Helm repository
+  - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
+    entrypoint: bash
+    args: ['./scripts/push-helm-chart.sh']
+    env:
+      - 'REPO=gs://${_BUILDS_BUCKET}/charts/${_ENV}'
+      - 'VERSION=${TAG_NAME}'
+
+  # Push chart to Helm repository
+  - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
+    entrypoint: bash
+    args: ['./scripts/push-helm-chart.sh']
+    env:
+      - 'REPO=gs://${_BUILDS_BUCKET}/charts/${_ENV}'
+      - 'VERSION=${TAG_NAME}'
+      - 'CHART_NAME=facebook-scraper'
+
+images:
+  - ${_IMAGE_REPO}/facebook-scraper
+  - ${_IMAGE_REPO}/facebook-scraper:$TAG_NAME
