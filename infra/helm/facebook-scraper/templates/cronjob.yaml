@@ -12,7 +12,7 @@ spec:
         spec:
           containers:
             - name: scrapy
-              image: {{ $dot.Values.repository }}/{{ $dot.Values.tag }}
+              image: {{ $dot.Values.repository }}/facebook-scraper:{{ $dot.Values.tag }}
               args:
                 - /bin/sh
                 - -c

@@ -11,11 +11,10 @@ Upload egg to Spiderkeeper
 
 ### spider arguments
 
- - `city`
- - `country`
- - `req_items`
+ - `city` (required)
+ - `country` (required)
  
-E.g. `scrapy crawl events -a req_items=1`
+E.g. `scrapy crawl events -a country=NL`
  
 ### Environment variables
 
