@@ -18,10 +18,12 @@ spec:
         spec:
           containers:
             - name: scrapy
-              image: "{{ $dot.Values.repository }}/facebook-scraper:{{ $dot.Values.tag }}"
+              image: "{{ $dot.Values.image.repository }}/facebook-scraper:{{ $dot.Values.image.tag }}"
               args:
                 - -a country={{ .country }}
                 - -a city={{ .city }}
+                - -s LOG_STDOUT=true
+                - -s LOG_LEVEL=debug
               envFrom:
                 - secretRef:
                     name: facebook-scraper-env
