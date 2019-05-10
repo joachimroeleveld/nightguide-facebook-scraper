@@ -2,7 +2,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 scrapy:
-  logLevel: debug
+  logLevel: DEBUG
 
 image:
   repository: eu.gcr.io/nightguide-infra

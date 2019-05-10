@@ -15,7 +15,8 @@ def get_credentials(index=0):
 
 
 def login(cookiejar, callback, credentials=get_credentials()):
-    return Request(LOGIN_URL, dont_filter=True,
+    return Request(LOGIN_URL,
+                   dont_filter=True,
                    callback=lambda res: login_using_response(res, credentials, cookiejar, callback))
 
 
@@ -24,6 +25,7 @@ def login_using_response(response, credentials, cookiejar, callback):
 
     return FormRequest.from_response(
         response,
+        dont_filter=True,
         formxpath='//form[contains(@action, "login")]',
         formdata={'email': email, 'pass': password},
         meta={'cookiejar': cookiejar},
