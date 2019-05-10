@@ -19,10 +19,7 @@ spec:
           containers:
             - name: scrapy
               image: "{{ $dot.Values.repository }}/facebook-scraper:{{ $dot.Values.tag }}"
-              command:
-                - /bin/sh
-                - -c
-                - scrapy
+              args:
                 - -a country={{ .country }}
                 - -a city={{ .city }}
               envFrom:
