@@ -16,14 +16,6 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', '${_IMAGE_REPO}/facebook-scraper:$TAG_NAME' ]
 
-    # Push chart to Helm repository
-  - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
-    entrypoint: bash
-    args: ['./scripts/push-helm-chart.sh']
-    env:
-      - 'REPO=gs://${_BUILDS_BUCKET}/charts/${_ENV}'
-      - 'VERSION=${TAG_NAME}'
-
   # Push chart to Helm repository
   - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
     entrypoint: bash
