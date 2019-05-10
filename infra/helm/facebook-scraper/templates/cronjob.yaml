@@ -1,9 +1,15 @@
 {{- $dot := . -}}
 {{- range .Values.cities }}
+---
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: facebook-scraper-{{ .country }}-{{ .city }}
+  name: facebook-scraper-{{ .country | lower }}-{{ .city | lower }}
+  labels:
+    app.kubernetes.io/name: {{ include "facebook-scraper.name" $dot }}
+    helm.sh/chart: {{ include "facebook-scraper.chart" $dot }}
+    app.kubernetes.io/instance: {{ $dot.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $dot.Release.Service }}
 spec:
   schedule: {{ .schedule }}
   jobTemplate:
@@ -12,8 +18,8 @@ spec:
         spec:
           containers:
             - name: scrapy
-              image: {{ $dot.Values.repository }}/facebook-scraper:{{ $dot.Values.tag }}
-              args:
+              image: "{{ $dot.Values.repository }}/facebook-scraper:{{ $dot.Values.tag }}"
+              command:
                 - /bin/sh
                 - -c
                 - scrapy

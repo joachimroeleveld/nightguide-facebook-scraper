@@ -13,3 +13,5 @@ ADD requirements.txt .
 RUN apk --no-cache add --virtual build-dependencies $BUILD_PACKAGES && \
     pip3 --no-cache-dir install -r requirements.txt && \
     apk del build-dependencies
+
+ENTRYPOINT ["scrapy"]

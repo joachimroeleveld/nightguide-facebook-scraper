@@ -1,6 +1,9 @@
+nameOverride: ""
+fullnameOverride: ""
+
 image:
   repository: eu.gcr.io/nightguide-infra
-  tag: 1.0.6
+  tag: 1.0.7
 
 cities:
   - city: Utrecht
