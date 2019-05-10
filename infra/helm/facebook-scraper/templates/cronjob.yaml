@@ -20,8 +20,8 @@ spec:
             - name: scrapy
               image: "{{ $dot.Values.image.repository }}/facebook-scraper:{{ $dot.Values.image.tag }}"
               args:
-                - crawl
-                - events
+                - runspider
+                - facebook_scraper/spiders/events.py
                 - -a country={{ .country }}
                 - -a city={{ .city }}
                 - -s LOG_STDOUT=true

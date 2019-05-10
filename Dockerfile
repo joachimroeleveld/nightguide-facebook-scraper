@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add --no-cache $RUNTIME_PACKAGES && \
     update-ca-certificates
 
-ADD requirements.txt .
+COPY . .
 
 RUN apk --no-cache add --virtual build-dependencies $BUILD_PACKAGES && \
     pip3 --no-cache-dir install -r requirements.txt && \
