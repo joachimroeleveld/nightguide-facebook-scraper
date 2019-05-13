@@ -1,14 +1,16 @@
 import logging
 from scrapy import FormRequest, Request
 from scrapy.exceptions import CloseSpider
+import os
 
-from facebook_scraper.res.accounts import accounts
-
+ACCOUNTS = os.environ.get('FB_ACCOUNTS')
 LOGIN_URL = 'https://m.facebook.com/login.php'
 
 
 def get_credentials(index=0):
-    user = accounts.splitlines()[index]
+    if not ACCOUNTS:
+        raise Exception('No Facebook accounts found in FB_ACCOUNTS')
+    user = ACCOUNTS.split(',')[index]
     un, password, *rest = user.split(';')
     logging.debug('Using credentials: {}:{}'.format(un, password))
     return un, password

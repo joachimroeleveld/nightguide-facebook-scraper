@@ -31,7 +31,6 @@ class EventsSpider(CrawlSpider):
 
         self.create_proxy_pool()
         self.get_venues()
-        print(str(self.venues))
         self.city_config = self.ng_api.get_city_config()
         return self.create_auth_sessions(callback)
 
