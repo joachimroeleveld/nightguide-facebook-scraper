@@ -3,7 +3,7 @@ from scrapy import FormRequest, Request
 from scrapy.exceptions import CloseSpider
 import os
 
-ACCOUNTS = os.environ.get('FB_ACCOUNTS')
+ACCOUNTS = os.getenv('FB_ACCOUNTS')
 LOGIN_URL = 'https://m.facebook.com/login.php'
 
 

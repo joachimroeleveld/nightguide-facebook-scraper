@@ -18,6 +18,11 @@ E.g. `scrapy crawl events -a country=NL`
  
 ### Environment variables
 
+Create `.env` under `/facebook_scraper`
+
+**Variables:**
+
+ - `FB_ACCOUNTS` 
  - `PROXY_POOL`
  - `NG_API_HOST`
  - `NG_API_TOKEN`

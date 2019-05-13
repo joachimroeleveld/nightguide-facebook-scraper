@@ -39,8 +39,8 @@ class EventsSpider(CrawlSpider):
             for venue in self.venues:
                 url = EVENTS_URL.format(venue=venue['facebook']['id'])
                 kwargs = self.get_request_conf()
+                kwargs['meta']['req_conf'] = kwargs.copy()
                 kwargs['meta']['venue'] = venue
-                kwargs['meta']['req_conf'] = kwargs
                 yield Request(url=url, callback=self.parse, **kwargs)
 
         return [self.init(init_cb)]

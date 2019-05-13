@@ -73,6 +73,7 @@ class FacebookEventsPipeline(object):
                 item['facebook']['goingCount'] = event['going_count']
             if 'image' in event:
                 images.append((event['id'], event['image']))
+            data.append(item)
 
         try:
             ng_api.update_venue_facebook_events(venue_id, data)

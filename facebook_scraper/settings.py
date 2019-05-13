@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Scrapy settings for facebook_scraper project
 #
 # For simplicity, this file contains only settings considered important or
