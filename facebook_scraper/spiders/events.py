@@ -60,7 +60,6 @@ class EventsSpider(CrawlSpider):
 
         conf = response.meta['req_conf'].copy()
         conf['meta']['venue'] = response.meta['venue']
-        conf['meta']['organiser_name'] = response.xpath("//div[@id='event_header']/following-sibling::div[1]//h3[1]/text()").get()
 
         # Fetch events
         for event in event_list:
@@ -87,8 +86,8 @@ class EventsSpider(CrawlSpider):
 
         loader.add_value('id', event_id)
         loader.add_value('venue_id', response.meta['venue']['id'])
-        loader.add_value('organiser_name', response.meta['organiser_name'])
 
+        loader.add_xpath("organiser_name", "//div[contains(text(),'More events at')]/text()")
         loader.add_xpath('description', "//div[@id='unit_id_886302548152152']/div[2]/text()")
         loader.add_xpath('title', "//div[@id='cta_button_bar_wrapper']/preceding-sibling::div//h3/text()")
         loader.add_xpath('location_name', "(//div[@id='event_summary']//table)[2]//td[2]/*[1]/div/text()")

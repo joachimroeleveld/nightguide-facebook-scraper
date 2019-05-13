@@ -6,6 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+import re
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Join
 from facebook_scraper.lib.parse_dates import parse_date
@@ -61,16 +62,27 @@ def dates_in(self, dates, loader_context):
 
 
 def count_in(self, count):
-    multiplier = 1
-    count = count.replace('.', '')
-    if 'K' in count:
-        count = count.replace('K', '')
-        multiplier = 1000
-    return int(count) * multiplier
+    if count:
+        multiplier = 1
+        count = count[0].replace('.', '')
+        if 'K' in count:
+            count = count.replace('K', '')
+            multiplier = 1000
+        return int(count) * multiplier
+    else:
+        return None
+
+
+def organiser_name_in(self, name):
+    if name:
+        return re.search(r"events at (.*)", name[0]).groups()
+    return None
 
 
 class FacebookEventLoader(ItemLoader):
     default_output_processor = TakeFirst()
+
+    organiser_name_in = organiser_name_in
 
     description_in = Join('/n')
 

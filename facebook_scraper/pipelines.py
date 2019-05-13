@@ -59,27 +59,29 @@ class FacebookEventsPipeline(object):
         data = []
         images = []
         for event in events:
-            data.append({
+            item = {
                 'dates': event['dates'],
                 'facebook': {
                     'id': event['id'],
                     'description': event['description'].replace('\n', '\\n'),
                     'title': event['title'],
-                    'interestedCount': event['interested_count'],
-                    'goingCount': event['going_count'],
                 }
-            })
+            }
+            if 'interested_count' in event:
+                item['facebook']['interestedCount'] = event['interested_count']
+            if 'going_count' in event:
+                item['facebook']['goingCount'] = event['going_count']
             if 'image' in event:
                 images.append((event['id'], event['image']))
 
         try:
             ng_api.update_venue_facebook_events(venue_id, data)
+
+            for fb_event_id, image_url in images:
+                try:
+                    ng_api.update_facebook_event_image(fb_event_id, image_url)
+                except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
+                    logging.exception('API error during pipeline closing')
         except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
             logging.exception('API error during pipeline closing')
-
-        for fb_event_id, image_url in images:
-            try:
-                ng_api.update_facebook_event_image(fb_event_id, image_url)
-            except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
-                logging.exception('API error during pipeline closing')
 
