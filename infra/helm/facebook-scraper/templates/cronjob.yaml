@@ -33,5 +33,17 @@ spec:
               envFrom:
                 - secretRef:
                     name: facebook-scraper-env
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: "/app/google-key.json"
+              volumeMounts:
+                - mountPath: "/app/google-key.json"
+                  name: serviceaccount
+                  readOnly: true
+                  subPath: google-key.json
           restartPolicy: OnFailure
+          volumes:
+            - name: serviceaccount
+              secret:
+                secretName: "facebook-scraper-sa"
 {{- end }}

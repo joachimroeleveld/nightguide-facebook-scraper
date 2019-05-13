@@ -9,6 +9,10 @@ Upload egg to Spiderkeeper
 
 ## Configuration
 
+### Google auth
+
+`facebook-scraper-sa` kubernetes secret has to contain Google application credentials.
+
 ### spider arguments
 
  - `city` (required)

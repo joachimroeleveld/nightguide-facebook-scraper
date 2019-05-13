@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,12 +13,15 @@ load_dotenv()
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+STACKDRIVER_ENABLED = os.getenv('STACKDRIVER_ENABLED') == '1'
+STACKDRIVER_PROJECT_ID = os.getenv('STACKDRIVER_PROJECT_ID')
+
 BOT_NAME = 'facebook_scraper'
 
 SPIDER_MODULES = ['facebook_scraper.spiders']
 NEWSPIDER_MODULE = 'facebook_scraper.spiders'
 
-LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'INFO'
 
 USER_AGENT = 'Mozilla/5.0 (Maemo; Linux armv7l; rv:10.0.1) Gecko/20100101 Firefox/10.0.1 Fennec/10.0.1'
 
@@ -63,9 +67,11 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
-# EXTENSIONS = {
-#    'scrapy.extensions.telnet.TelnetConsole': None,
-# }
+EXTENSIONS = {
+}
+
+if STACKDRIVER_ENABLED:
+    EXTENSIONS['scrapy_stackdriver.StackDriverLogger'] = 500
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html

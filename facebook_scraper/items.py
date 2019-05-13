@@ -61,14 +61,14 @@ def dates_in(self, dates, loader_context):
     return list(parsed)
 
 
-def count_in(self, count):
-    if count:
+def count_in(self, value):
+    if value:
+        count = value[0]
         multiplier = 1
-        count = count[0].replace('.', '')
         if 'K' in count:
             count = count.replace('K', '')
             multiplier = 1000
-        return int(count) * multiplier
+        return int(float(count) * multiplier)
     else:
         return None
 
