@@ -71,7 +71,7 @@ EXTENSIONS = {
 }
 
 if STACKDRIVER_ENABLED:
-    EXTENSIONS['scrapy_stackdriver.StackDriverLogger'] = 500
+    EXTENSIONS['facebook_scraper.lib.stackdriver.StackDriverLogger'] = 500
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
