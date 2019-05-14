@@ -3,11 +3,8 @@ from urllib.parse import urlencode
 import os
 
 PAGE_SIZE = 50
-BASE_URL = os.environ.get('NG_API_HOST', 'http://localhost:8080')
-TOKEN = os.environ.get(
-    'NG_API_TOKEN',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Y2Q0MWMxZjQ5ZmQ5YzM4YzJmMDIyMWIiLCJhdWQiOiJvYWo0NkhjaVNEWjNxcWkiLCJpYXQiOjE1NTc0MDQ3NzJ9.YlK8bAgJX_U37AoXTjsTBCO0liE0gR_vweXWOK5efSA')
-
+BASE_URL = os.environ.get('NG_API_HOST')
+TOKEN = os.environ.get('NG_API_TOKEN')
 
 class NgAPI:
     def __init__(self):

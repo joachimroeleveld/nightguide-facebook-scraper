@@ -13,7 +13,7 @@ load_dotenv()
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-STACKDRIVER_ENABLED = os.getenv('STACKDRIVER_ENABLED') == '1'
+STACKDRIVER_ENABLED = os.getenv('STACKDRIVER_ENABLED')
 STACKDRIVER_PROJECT_ID = os.getenv('STACKDRIVER_PROJECT_ID')
 
 BOT_NAME = 'facebook_scraper'

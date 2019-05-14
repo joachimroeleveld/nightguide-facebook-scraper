@@ -1,8 +1,14 @@
 nameOverride: ""
 fullnameOverride: ""
 
+gcloud:
+  project:
+
 scrapy:
   logLevel: DEBUG
+
+stackdriver:
+  enabled: false
 
 image:
   repository: eu.gcr.io/nightguide-infra
