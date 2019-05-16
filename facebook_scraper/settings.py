@@ -67,10 +67,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
 EXTENSIONS = {
+    'facebook_scraper.lib.stackdriver.StackDriverLogger': 500
 }
-
-if STACKDRIVER_ENABLED:
-    EXTENSIONS['facebook_scraper.lib.stackdriver.StackDriverLogger'] = 500
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
