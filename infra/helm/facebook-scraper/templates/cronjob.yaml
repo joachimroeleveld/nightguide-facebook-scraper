@@ -28,15 +28,17 @@ spec:
                   -a city={{ .city }} \
                   -s LOG_STDOUT=true \
                   -s LOG_LEVEL={{ $dot.Values.scrapy.logLevel }} \
-                  -s STACKDRIVER_ENABLED={{ $dot.Values.stackdriver.enabled }} \
-                  -s STACKDRIVER_PROJECT={{ $dot.Values.gcloud.project }} \
-                  facebook_scraper/spiders/events.py > /dev/null
+                  facebook_scraper/spiders/events.py 2>/dev/null
               envFrom:
                 - secretRef:
                     name: facebook-scraper-env
               env:
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: "/app/google-key.json"
+                - name: STACKDRIVER_ENABLED
+                  value: {{ $dot.Values.stackdriver.enabled }}
+                - name: STACKDRIVER_PROJECT_ID
+                  value: {{ $dot.Values.gcloud.project }}
               volumeMounts:
                 - mountPath: "/app/google-key.json"
                   name: serviceaccount
