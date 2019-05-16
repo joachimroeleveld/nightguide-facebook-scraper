@@ -2,7 +2,6 @@
 
 from tempfile import NamedTemporaryFile
 import jsonlines
-import logging
 import requests
 from scrapy.exceptions import DropItem
 
@@ -11,8 +10,12 @@ class FacebookEventsPipeline(object):
     venue_files = {}
 
     def close_spider(self, spider):
+        event_count = 0
+        spider.logger.debug('Scraped events for {} venues'.format(len(self.venue_files.keys())))
         for venue_id in self.venue_files:
-            self.handle_finished(venue_id, spider.ng_api)
+            data, images = self.handle_finished(venue_id, spider.ng_api, spider)
+            event_count += len(data)
+        spider.logger.debug('Processed {} events through pipeline'.format(event_count))
 
     # Buffer to file
     def process_item(self, item, spider):
@@ -46,15 +49,13 @@ class FacebookEventsPipeline(object):
         return item
 
     # Send result to API
-    def handle_finished(self, venue_id, ng_api):
+    def handle_finished(self, venue_id, ng_api, spider):
         file = self.venue_files[venue_id]
         with jsonlines.open(file.name, mode='r') as reader:
             events = []
             for event in reader:
                 events.append(event)
         file.close()
-
-        logging.debug('Sending {} events to API for venue {}'.format(len(events), venue_id))
 
         data = []
         images = []
@@ -76,13 +77,16 @@ class FacebookEventsPipeline(object):
             data.append(item)
 
         try:
+            spider.logger.debug('Sending {} events to API for venue {}'.format(len(data), venue_id))
             ng_api.update_venue_facebook_events(venue_id, data)
 
             for fb_event_id, image_url in images:
                 try:
                     ng_api.update_facebook_event_image(fb_event_id, image_url)
                 except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
-                    logging.exception('API error during pipeline closing')
+                    spider.logger.exception('API error during pipeline closing')
         except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
-            logging.exception('API error during pipeline closing')
+            spider.logger.exception('API error during pipeline closing')
+
+        return data, images
 
