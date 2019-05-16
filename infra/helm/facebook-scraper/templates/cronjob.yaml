@@ -34,8 +34,7 @@ spec:
                 - -s
                 - STACKDRIVER_PROJECT={{ $dot.Values.gcloud.project }}
                 - facebook_scraper/spiders/events.py
-                - >
-                - /dev/null
+                - ">/dev/null"
               envFrom:
                 - secretRef:
                     name: facebook-scraper-env
