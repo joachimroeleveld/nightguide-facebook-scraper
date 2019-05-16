@@ -36,9 +36,9 @@ spec:
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: "/app/google-key.json"
                 - name: STACKDRIVER_ENABLED
-                  value: {{ $dot.Values.stackdriver.enabled }}
+                  value: {{ $dot.Values.stackdriver.enabled | quote }}
                 - name: STACKDRIVER_PROJECT_ID
-                  value: {{ $dot.Values.gcloud.project }}
+                  value: {{ $dot.Values.gcloud.project | quote }}
               volumeMounts:
                 - mountPath: "/app/google-key.json"
                   name: serviceaccount
