@@ -21,14 +21,21 @@ spec:
               image: "{{ $dot.Values.image.repository }}/facebook-scraper:{{ $dot.Values.image.tag }}"
               args:
                 - runspider
-                - "-a country={{ .country }}"
-                - "-a city={{ .city }}"
-                - "-s LOG_STDOUT=true"
-                - "-s LOG_LEVEL={{ $dot.Values.scrapy.logLevel }}"
-                - "-s STACKDRIVER_ENABLED={{ $dot.Values.stackdriver.enabled }}"
-                - "-s STACKDRIVER_PROJECT={{ $dot.Values.gcloud.project }}"
+                - -a
+                - country={{ .country }}
+                - -a
+                - city={{ .city }}
+                - -s
+                - LOG_STDOUT=true
+                - -s
+                - LOG_LEVEL={{ $dot.Values.scrapy.logLevel }}
+                - -s
+                - STACKDRIVER_ENABLED={{ $dot.Values.stackdriver.enabled }}
+                - -s
+                - STACKDRIVER_PROJECT={{ $dot.Values.gcloud.project }}
                 - facebook_scraper/spiders/events.py
-                - "> /dev/null"
+                - >
+                - /dev/null
               envFrom:
                 - secretRef:
                     name: facebook-scraper-env
