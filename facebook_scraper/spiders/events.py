@@ -6,7 +6,7 @@ import base64
 import os
 
 from facebook_scraper.items import FacebookEvent, FacebookEventLoader
-from facebook_scraper.lib.auth import login, login_using_response, get_credentials
+from facebook_scraper.lib.auth import login, login_using_response
 from facebook_scraper.lib.ng_api import NgAPI
 from facebook_scraper.lib.util import deep_merge
 
@@ -135,7 +135,7 @@ class EventsSpider(CrawlSpider):
         if self.proxy_pool:
             return self.create_proxy_auth_sessions(callback)
         else:
-            cookiejar='auth'
+            cookiejar = 'auth'
             self.cookiejars.append(cookiejar)
             return login(callback=callback, cookiejar=cookiejar)
 
@@ -143,8 +143,7 @@ class EventsSpider(CrawlSpider):
         if len(self.proxy_pool) > proxy_index:
             cookiejar = COOKIEJAR_PREFIX + str(proxy_index)
             self.cookiejars.append(cookiejar)
-            return login(credentials=get_credentials(proxy_index),
-                         callback=lambda: self.create_proxy_auth_sessions(callback, proxy_index + 1),
+            return login(callback=lambda: self.create_proxy_auth_sessions(callback, proxy_index + 1),
                          cookiejar=cookiejar)
         else:
             return callback()

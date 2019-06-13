@@ -1,4 +1,5 @@
 import re
+import datetime
 import dateutil.parser as date_parser
 from dateutil import tz
 import logging
@@ -27,6 +28,9 @@ def parse_date_string_parts(tzinfo, day_from, time_from, time_to=None, day_to=No
     # With ending time
     if time_to:
         date_to = date_parser.parse(str.join(' ', [day_to, time_to]), fuzzy=True).replace(tzinfo=tzinfo)
+        # If on the same day after midnight
+        if day_to is None and time_to[0] == '0':
+            date_to = date_to + datetime.timedelta(days=1)
         return date_from, date_to
     # No ending time
     else:
