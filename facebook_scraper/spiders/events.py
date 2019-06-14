@@ -28,10 +28,15 @@ class EventsSpider(CrawlSpider):
             raise Exception('city and country are required spider arguments')
 
         self.ng_api = NgAPI()
-
         self.create_proxy_pool()
-        self.get_venues()
+
+        venue_ids = None
+        if hasattr(self, 'venue_ids'):
+            venue_ids = self.venue_ids.split(',')
+        self.get_venues(ids=venue_ids)
+
         self.city_config = self.ng_api.get_city_config()
+
         return self.create_auth_sessions(callback)
 
     def start_requests(self):
@@ -148,7 +153,7 @@ class EventsSpider(CrawlSpider):
         else:
             return callback()
 
-    def get_venues(self):
+    def get_venues(self, ids):
         args = {
             'fields': 'facebook.id,location.city,location.country',
             'filters': {
@@ -157,5 +162,8 @@ class EventsSpider(CrawlSpider):
                 'country': self.country,
             }
         }
+        if ids:
+            args['ids'] = str.join(',', ids)
+
         self.venues = self.ng_api.get_venues(**args)
         self.logger.debug('Fetched {} venues'.format(str(len(self.venues))))

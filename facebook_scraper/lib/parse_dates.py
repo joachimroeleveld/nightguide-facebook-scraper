@@ -22,14 +22,15 @@ def parse_date(date_string, timezone):
 
 
 def parse_date_string_parts(tzinfo, day_from, time_from, time_to=None, day_to=None):
-    if day_to is None:
+    same_day = not day_to
+    if same_day:
         day_to = day_from
     date_from = date_parser.parse(str.join(' ', [day_from, time_from]), fuzzy=True).replace(tzinfo=tzinfo)
     # With ending time
     if time_to:
         date_to = date_parser.parse(str.join(' ', [day_to, time_to]), fuzzy=True).replace(tzinfo=tzinfo)
         # If on the same day after midnight
-        if day_to is None and time_to[0] == '0':
+        if same_day and time_to < time_from:
             date_to = date_to + datetime.timedelta(days=1)
         return date_from, date_to
     # No ending time

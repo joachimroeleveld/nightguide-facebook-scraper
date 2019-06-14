@@ -36,10 +36,10 @@ class NgAPI:
         body = self._request(uri).json()
 
         venues.extend(body['results'])
-        if body['totalCount'] == len(venues):
-            return venues
+        # if body['totalCount'] == len(venues):
+        return venues
 
-        return self.get_venues(filters, venues, **kwargs)
+        # return self.get_venues(filters, venues, **kwargs)
 
     def _request(self, uri, method='GET', **kwargs):
         url = self.base_url + uri

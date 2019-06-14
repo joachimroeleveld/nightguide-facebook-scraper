@@ -77,7 +77,7 @@ def count_in(self, value):
 def description_out(self, value):
     if value:
         safe_attrs = {'src', 'alt', 'href', 'title', 'width', 'height'}
-        kill_tags = ['object', 'iframe', 'div', 'span']
+        kill_tags = ['object', 'iframe']
         cleaner = clean.Cleaner(safe_attrs_only=True, safe_attrs=safe_attrs, kill_tags=kill_tags)
         return cleaner.clean_html(value[0])
     else:
