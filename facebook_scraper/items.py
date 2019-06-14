@@ -11,6 +11,7 @@ from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Join
 from facebook_scraper.lib.parse_dates import parse_date
 from scrapy.utils.markup import remove_tags
+import lxml.html.clean as clean
 
 
 class FacebookEvent(scrapy.Item):
@@ -73,6 +74,16 @@ def count_in(self, value):
         return None
 
 
+def description_out(self, value):
+    if value:
+        safe_attrs = {'src', 'alt', 'href', 'title', 'width', 'height'}
+        kill_tags = ['object', 'iframe', 'div', 'span']
+        cleaner = clean.Cleaner(safe_attrs_only=True, safe_attrs=safe_attrs, kill_tags=kill_tags)
+        return cleaner.clean_html(value[0])
+    else:
+        return None
+
+
 def organiser_name_in(self, name):
     if name:
         return re.search(r"events at (.*)", name[0]).groups()
@@ -84,7 +95,7 @@ class FacebookEventLoader(ItemLoader):
 
     organiser_name_in = organiser_name_in
 
-    description_in = Join('/n')
+    description_out = description_out
 
     dates_in = dates_in
     dates_out = format_dates

@@ -4,8 +4,14 @@ from scrapy.exceptions import CloseSpider
 from facebook_scraper.lib.sheets import get_facebook_credentials
 import os
 
-ACCOUNTS = os.getenv('FB_ACCOUNTS')
 LOGIN_URL = 'https://m.facebook.com/login.php'
+
+
+def get_credentials():
+    if os.getenv('FB_ACCOUNT'):
+        return tuple(os.getenv('FB_ACCOUNT').split(','))
+    else:
+        return get_facebook_credentials()
 
 
 def login(cookiejar, callback):
@@ -15,7 +21,7 @@ def login(cookiejar, callback):
 
 
 def login_using_response(response, cookiejar, callback):
-    email, password = get_facebook_credentials()
+    email, password = get_credentials()
     logging.debug('Using credentials: {}:{}'.format(email, password))
 
     return FormRequest.from_response(

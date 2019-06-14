@@ -87,7 +87,7 @@ class EventsSpider(CrawlSpider):
         loader.add_value('venue_id', response.meta['venue']['id'])
 
         loader.add_xpath("organiser_name", "//div[contains(text(),'More events at')]/text()")
-        loader.add_xpath('description', "//div[@id='unit_id_886302548152152']/div[2]/text()")
+        loader.add_xpath('description', "//div[@id='unit_id_886302548152152']/div[2]")
         loader.add_xpath('title', "//div[@id='cta_button_bar_wrapper']/preceding-sibling::div//h3/text()")
         loader.add_xpath('location_name', "(//div[@id='event_summary']//table)[2]//td[2]/*[1]/div/text()")
         loader.add_xpath('going_count', "//div[@id='unit_id_703958566405594']/div[1]/div[1]/div[2]/a/text()")
