@@ -13,6 +13,7 @@ from facebook_scraper.lib.util import deep_merge
 EVENTS_URL = 'https://mobile.facebook.com/{venue}/events'
 COOKIEJAR_PREFIX = 'fb_auth_'
 PROXY_POOL = os.environ.get('PROXY_POOL')
+CRAWLERA_HOST = 'proxy.crawlera.com'
 
 
 class EventsSpider(CrawlSpider):
@@ -43,7 +44,7 @@ class EventsSpider(CrawlSpider):
         def init_cb():
             for venue in self.venues:
                 url = EVENTS_URL.format(venue=venue['facebook']['id'])
-                kwargs = self.get_request_conf()
+                kwargs = self.get_request_conf(init=True)
                 kwargs['meta']['req_conf'] = kwargs.copy()
                 kwargs['meta']['venue'] = venue
                 yield Request(url=url, callback=self.parse, **kwargs)
@@ -64,6 +65,9 @@ class EventsSpider(CrawlSpider):
 
         conf = response.meta['req_conf'].copy()
         conf['meta']['venue'] = response.meta['venue']
+
+        if CRAWLERA_HOST in conf['meta']['proxy']:
+            conf['headers']['X-Crawlera-Session'] = response.headers.get('X-Crawlera-Session')
 
         # Fetch events
         for event in event_list:
@@ -104,34 +108,37 @@ class EventsSpider(CrawlSpider):
 
         return loader.load_item()
 
-    def get_request_conf(self):
+    def get_request_conf(self, init=False):
         conf = {'meta': {}}
         if self.proxy_pool:
             proxy_index = random.randint(0, len(self.proxy_pool) - 1)
             deep_merge(self.get_request_auth_conf(proxy_index), conf)
-            deep_merge(self.get_request_proxy_conf(proxy_index), conf)
+            deep_merge(self.get_request_proxy_conf(proxy_index, init), conf)
         else:
             deep_merge(self.get_request_auth_conf(), conf)
         return conf
 
-    def get_request_proxy_conf(self, proxy_index):
+    def get_request_proxy_conf(self, proxy_index, init):
         proxy = self.proxy_pool[proxy_index]
         conf = {'meta': {}, 'headers': {}}
         address, un, password = proxy
         conf['meta']['proxy'] = address
         auth_string = base64.b64encode(bytes('{}:{}'.format(un, password), 'utf8')).decode('utf8')
         conf['headers']['Proxy-Authorization'] = 'Basic {}'.format(auth_string)
-        if 'proxy.crawlera.com' in address:
-            deep_merge(self.get_request_crawlera_conf(), conf)
+        if CRAWLERA_HOST in address:
+            deep_merge(self.get_request_crawlera_conf(init), conf)
         return conf
 
-    def get_request_crawlera_conf(self):
-        return {
+    def get_request_crawlera_conf(self, init):
+        conf = {
             'headers': {
                 'X-Crawlera-Profile': 'pass',
                 'X-Crawlera-Cookies': 'disable'
             }
         }
+        if init:
+            conf['headers']['X-Crawlera-Session'] = 'create'
+        return conf
 
     def get_request_auth_conf(self, proxy_index=0):
         conf = {'meta': {}}
