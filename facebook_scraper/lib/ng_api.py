@@ -24,22 +24,21 @@ class NgAPI:
         self._request(uri, method='PUT', json=json)
 
     def get_venues(self, filters={}, venues=[], **kwargs):
-        filters_encoded = {'filter[{}]'.format(k): filters[k] for k in filters.keys()}
         query = {
             'limit': PAGE_SIZE,
             'offset': str(len(venues)),
         }
         query.update(kwargs)
-        query.update(filters_encoded)
+        query.update(filters)
 
         uri = '/venues?' + urlencode(query)
         body = self._request(uri).json()
 
         venues.extend(body['results'])
-        # if body['totalCount'] == len(venues):
-        return venues
+        if body['totalCount'] == len(venues):
+            return venues
 
-        # return self.get_venues(filters, venues, **kwargs)
+        return self.get_venues(filters, venues, **kwargs)
 
     def _request(self, uri, method='GET', **kwargs):
         url = self.base_url + uri

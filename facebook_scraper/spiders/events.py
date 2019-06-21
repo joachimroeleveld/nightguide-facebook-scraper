@@ -121,7 +121,17 @@ class EventsSpider(CrawlSpider):
         conf['meta']['proxy'] = address
         auth_string = base64.b64encode(bytes('{}:{}'.format(un, password), 'utf8')).decode('utf8')
         conf['headers']['Proxy-Authorization'] = 'Basic {}'.format(auth_string)
+        if 'proxy.crawlera.com' in address:
+            deep_merge(self.get_request_crawlera_conf(), conf)
         return conf
+
+    def get_request_crawlera_conf(self):
+        return {
+            'headers': {
+                'X-Crawlera-Profile': 'pass',
+                'X-Crawlera-Cookies': 'disable'
+            }
+        }
 
     def get_request_auth_conf(self, proxy_index=0):
         conf = {'meta': {}}
