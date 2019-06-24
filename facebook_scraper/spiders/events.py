@@ -44,7 +44,7 @@ class EventsSpider(CrawlSpider):
         def init_cb():
             for venue in self.venues:
                 url = EVENTS_URL.format(venue=venue['facebook']['id'])
-                kwargs = self.get_request_conf(init=True)
+                kwargs = self.get_request_conf()
                 kwargs['meta']['req_conf'] = kwargs.copy()
                 kwargs['meta']['venue'] = venue
                 yield Request(url=url, callback=self.parse, **kwargs)
@@ -64,6 +64,7 @@ class EventsSpider(CrawlSpider):
             )
 
         conf = response.meta['req_conf'].copy()
+        conf['meta']['req_conf'] = conf
         conf['meta']['venue'] = response.meta['venue']
 
         if CRAWLERA_HOST in conf['meta']['proxy']:
@@ -108,17 +109,17 @@ class EventsSpider(CrawlSpider):
 
         return loader.load_item()
 
-    def get_request_conf(self, init=False):
+    def get_request_conf(self):
         conf = {'meta': {}}
         if self.proxy_pool:
             proxy_index = random.randint(0, len(self.proxy_pool) - 1)
             deep_merge(self.get_request_auth_conf(proxy_index), conf)
-            deep_merge(self.get_request_proxy_conf(proxy_index, init), conf)
+            deep_merge(self.get_request_proxy_conf(proxy_index), conf)
         else:
             deep_merge(self.get_request_auth_conf(), conf)
         return conf
 
-    def get_request_proxy_conf(self, proxy_index, init):
+    def get_request_proxy_conf(self, proxy_index):
         proxy = self.proxy_pool[proxy_index]
         conf = {'meta': {}, 'headers': {}}
         address, un, password = proxy
@@ -126,18 +127,17 @@ class EventsSpider(CrawlSpider):
         auth_string = base64.b64encode(bytes('{}:{}'.format(un, password), 'utf8')).decode('utf8')
         conf['headers']['Proxy-Authorization'] = 'Basic {}'.format(auth_string)
         if CRAWLERA_HOST in address:
-            deep_merge(self.get_request_crawlera_conf(init), conf)
+            deep_merge(self.get_request_crawlera_conf(), conf)
         return conf
 
-    def get_request_crawlera_conf(self, init):
+    def get_request_crawlera_conf(self):
         conf = {
             'headers': {
                 'X-Crawlera-Profile': 'pass',
-                'X-Crawlera-Cookies': 'disable'
+                'X-Crawlera-Cookies': 'disable',
+                'X-Crawlera-Session': 'create'
             }
         }
-        if init:
-            conf['headers']['X-Crawlera-Session'] = 'create'
         return conf
 
     def get_request_auth_conf(self, proxy_index=0):
