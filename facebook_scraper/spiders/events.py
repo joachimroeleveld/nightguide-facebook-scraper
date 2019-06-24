@@ -52,7 +52,7 @@ class EventsSpider(CrawlSpider):
         return [self.init(init_cb)]
 
     def parse(self, response):
-        event_list = response.xpath("//a[contains(@href,'/events/')]")
+        event_list = response.xpath("//div/a[contains(@href,'/events/')][1]")
         next_page_url = response.css('#m_more_friends_who_like_this a::attr(href)').get()
 
         if response.xpath("//form[contains(@action,'login')]"):
@@ -180,7 +180,7 @@ class EventsSpider(CrawlSpider):
             }
         }
         if ids:
-            args['ids'] = str.join(',', ids)
+            args['filters']['ids'] = str.join(',', ids)
 
         self.venues = self.ng_api.get_venues(**args)
         self.logger.debug('Fetched {} venues'.format(str(len(self.venues))))
