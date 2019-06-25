@@ -14,13 +14,14 @@ def get_credentials():
         return get_facebook_credentials()
 
 
-def login(cookiejar, callback):
+def login(callback, **kwargs):
     return Request(LOGIN_URL,
                    dont_filter=True,
-                   callback=lambda res: login_using_response(res, cookiejar, callback))
+                   callback=lambda res: login_using_response(res, callback, **kwargs),
+                   **kwargs)
 
 
-def login_using_response(response, cookiejar, callback):
+def login_using_response(response, callback, **kwargs):
     email, password = get_credentials()
     logging.debug('Using credentials: {}:{}'.format(email, password))
 
@@ -29,12 +30,12 @@ def login_using_response(response, cookiejar, callback):
         dont_filter=True,
         formxpath='//form[contains(@action, "login")]',
         formdata={'email': email, 'pass': password},
-        meta={'cookiejar': cookiejar},
-        callback=lambda res: _check_logged_in(res, cookiejar, callback)
+        callback=lambda res: _check_logged_in(res, callback, **kwargs),
+        **kwargs
     )
 
 
-def _check_logged_in(response, cookiejar, callback):
+def _check_logged_in(response, callback, **kwargs):
     # Check for captcha
     if 'checkpoint' in response.url:
         raise CloseSpider('blocked_by_robot_check')
@@ -42,9 +43,9 @@ def _check_logged_in(response, cookiejar, callback):
     if response.xpath("//div/a[contains(@href,'save-device')]"):
         return FormRequest.from_response(
             response,
-            meta={'cookiejar': cookiejar},
             formdata={'name_action_selected': 'dont_save'},
-            callback=callback
+            callback=callback,
+            **kwargs
         )
     else:
         return callback()

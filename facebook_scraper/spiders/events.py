@@ -54,17 +54,13 @@ class EventsSpider(CrawlSpider):
         event_list = response.xpath("//div/a[contains(@href,'/events/')][1]")
         next_page_url = response.css('#m_more_friends_who_like_this a::attr(href)').get()
 
-        if response.xpath("//form[contains(@action,'login')]"):
-            self.logger.debug('Login form found; logging in')
-            return login_using_response(
-                response,
-                cookiejar=response.meta['cookiejar'],
-                callback=self.parse
-            )
-
         req_kwargs = response.meta['req_conf'].copy()
         req_kwargs['meta']['req_conf'] = req_kwargs
         req_kwargs['meta']['venue'] = response.meta['venue']
+
+        if response.xpath("//form[contains(@action,'login')]"):
+            self.logger.debug('Login form found; logging in')
+            return login_using_response(response, callback=self.parse, **req_kwargs)
 
         # Fetch events
         for event in event_list:
@@ -144,14 +140,16 @@ class EventsSpider(CrawlSpider):
         else:
             cookiejar = 'auth'
             self.cookiejars.append(cookiejar)
-            return login(callback=callback, cookiejar=cookiejar)
+            return login(callback=callback, **self.get_request_auth_conf())
 
     def create_proxy_auth_sessions(self, callback, proxy_index=0):
         if len(self.proxy_pool) > proxy_index:
             cookiejar = COOKIEJAR_PREFIX + str(proxy_index)
             self.cookiejars.append(cookiejar)
-            return login(callback=lambda: self.create_proxy_auth_sessions(callback, proxy_index + 1),
-                         cookiejar=cookiejar)
+
+            kwargs = self.get_request_auth_conf(proxy_index)
+            deep_merge(self.get_request_proxy_conf(proxy_index), kwargs)
+            return login(callback=lambda res: self.create_proxy_auth_sessions(callback, proxy_index + 1), **kwargs)
         else:
             return callback()
 
