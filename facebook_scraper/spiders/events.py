@@ -4,6 +4,7 @@ import re
 import random
 import base64
 import os
+import requests
 
 from facebook_scraper.items import FacebookEvent, FacebookEventLoader
 from facebook_scraper.lib.auth import login, login_using_response
@@ -38,6 +39,8 @@ class EventsSpider(CrawlSpider):
 
         self.city_config = self.ng_api.get_city_config()
 
+        self.create_proxy_session()
+
         return self.create_auth_sessions(callback)
 
     def start_requests(self):
@@ -66,9 +69,6 @@ class EventsSpider(CrawlSpider):
         conf = response.meta['req_conf'].copy()
         conf['meta']['req_conf'] = conf
         conf['meta']['venue'] = response.meta['venue']
-
-        if CRAWLERA_HOST in conf['meta']['proxy']:
-            conf['headers']['X-Crawlera-Session'] = response.headers.get('X-Crawlera-Session')
 
         # Fetch events
         for event in event_list:
@@ -135,7 +135,7 @@ class EventsSpider(CrawlSpider):
             'headers': {
                 'X-Crawlera-Profile': 'pass',
                 'X-Crawlera-Cookies': 'disable',
-                'X-Crawlera-Session': 'create'
+                'X-Crawlera-Session': self.proxy_session_id
             }
         }
         return conf
@@ -152,6 +152,11 @@ class EventsSpider(CrawlSpider):
                 ip, port, un, password = proxy.split(':')
                 address = 'http://{}:{}'.format(ip, port)
                 self.proxy_pool.append((address, un, password))
+
+    def create_proxy_session(self):
+        if CRAWLERA_HOST in PROXY_POOL:
+            api_key = re.search(r"{}:\d+:(\w+):".format(CRAWLERA_HOST), PROXY_POOL).groups()[0]
+            self.proxy_session_id = requests.post('http://proxy.crawlera.com:8010/sessions', auth=(api_key, ''))
 
     def create_auth_sessions(self, callback):
         if self.proxy_pool:
