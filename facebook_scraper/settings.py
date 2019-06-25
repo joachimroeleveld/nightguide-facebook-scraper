@@ -21,7 +21,7 @@ BOT_NAME = 'facebook_scraper'
 SPIDER_MODULES = ['facebook_scraper.spiders']
 NEWSPIDER_MODULE = 'facebook_scraper.spiders'
 
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'DEBUG'
 
 USER_AGENT = 'Mozilla/5.0 (Maemo; Linux armv7l; rv:10.0.1) Gecko/20100101 Firefox/10.0.1 Fennec/10.0.1'
 

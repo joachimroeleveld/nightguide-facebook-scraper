@@ -4,7 +4,6 @@ import re
 import random
 import base64
 import os
-import requests
 
 from facebook_scraper.items import FacebookEvent, FacebookEventLoader
 from facebook_scraper.lib.auth import login, login_using_response
@@ -14,7 +13,6 @@ from facebook_scraper.lib.util import deep_merge
 EVENTS_URL = 'https://mobile.facebook.com/{venue}/events'
 COOKIEJAR_PREFIX = 'fb_auth_'
 PROXY_POOL = os.environ.get('PROXY_POOL')
-CRAWLERA_HOST = 'proxy.crawlera.com'
 
 
 class EventsSpider(CrawlSpider):
@@ -39,18 +37,16 @@ class EventsSpider(CrawlSpider):
 
         self.city_config = self.ng_api.get_city_config()
 
-        self.create_proxy_session()
-
         return self.create_auth_sessions(callback)
 
     def start_requests(self):
         def init_cb():
             for venue in self.venues:
                 url = EVENTS_URL.format(venue=venue['facebook']['id'])
-                kwargs = self.get_request_conf()
-                kwargs['meta']['req_conf'] = kwargs.copy()
-                kwargs['meta']['venue'] = venue
-                yield Request(url=url, callback=self.parse, **kwargs)
+                req_kwargs = self.get_request_conf()
+                req_kwargs['meta']['req_conf'] = req_kwargs.copy()
+                req_kwargs['meta']['venue'] = venue
+                yield Request(url=url, callback=self.parse, **req_kwargs)
 
         return [self.init(init_cb)]
 
@@ -66,19 +62,19 @@ class EventsSpider(CrawlSpider):
                 callback=self.parse
             )
 
-        conf = response.meta['req_conf'].copy()
-        conf['meta']['req_conf'] = conf
-        conf['meta']['venue'] = response.meta['venue']
+        req_kwargs = response.meta['req_conf'].copy()
+        req_kwargs['meta']['req_conf'] = req_kwargs
+        req_kwargs['meta']['venue'] = response.meta['venue']
 
         # Fetch events
         for event in event_list:
             details_url = response.urljoin(event.attrib['href'])
-            yield Request(url=details_url, callback=self.parse_event, **conf)
+            yield Request(url=details_url, callback=self.parse_event, **req_kwargs)
 
         # Fetch next page
         if next_page_url:
             url = response.urljoin(next_page_url)
-            yield Request(url=url, callback=self.parse, **conf)
+            yield Request(url=url, callback=self.parse, **req_kwargs)
 
     def parse_event(self, response):
         loader = FacebookEventLoader(item=FacebookEvent(), response=response)
@@ -124,20 +120,9 @@ class EventsSpider(CrawlSpider):
         conf = {'meta': {}, 'headers': {}}
         address, un, password = proxy
         conf['meta']['proxy'] = address
-        auth_string = base64.b64encode(bytes('{}:{}'.format(un, password), 'utf8')).decode('utf8')
-        conf['headers']['Proxy-Authorization'] = 'Basic {}'.format(auth_string)
-        if CRAWLERA_HOST in address:
-            deep_merge(self.get_request_crawlera_conf(), conf)
-        return conf
-
-    def get_request_crawlera_conf(self):
-        conf = {
-            'headers': {
-                'X-Crawlera-Profile': 'pass',
-                'X-Crawlera-Cookies': 'disable',
-                'X-Crawlera-Session': self.proxy_session_id
-            }
-        }
+        if un:
+            auth_string = base64.b64encode(bytes('{}:{}'.format(un, password), 'utf8')).decode('utf8')
+            conf['headers']['Proxy-Authorization'] = 'Basic {}'.format(auth_string)
         return conf
 
     def get_request_auth_conf(self, proxy_index=0):
@@ -152,11 +137,6 @@ class EventsSpider(CrawlSpider):
                 ip, port, un, password = proxy.split(':')
                 address = 'http://{}:{}'.format(ip, port)
                 self.proxy_pool.append((address, un, password))
-
-    def create_proxy_session(self):
-        if CRAWLERA_HOST in PROXY_POOL:
-            api_key = re.search(r"{}:\d+:(\w+):".format(CRAWLERA_HOST), PROXY_POOL).groups()[0]
-            self.proxy_session_id = requests.post('http://proxy.crawlera.com:8010/sessions', auth=(api_key, ''))
 
     def create_auth_sessions(self, callback):
         if self.proxy_pool:
