@@ -62,10 +62,12 @@ class EventsSpider(CrawlSpider):
             self.logger.debug('Login form found; logging in')
             return login_using_response(response, callback=self.parse, **req_kwargs)
 
-        if len(event_list):
-            self.crawler.stats.inc_value('events_spider/venues_with_events')
-        else:
-            self.crawler.stats.inc_value('events_spider/venues_without_events')
+        # If first event page
+        if 'serialized_cursor' not in response.url:
+            if len(event_list):
+                self.crawler.stats.inc_value('events_spider/venues_with_events')
+            else:
+                self.crawler.stats.inc_value('events_spider/venues_without_events')
 
         # Fetch events
         for event in event_list:

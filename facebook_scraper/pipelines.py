@@ -4,6 +4,7 @@ from tempfile import NamedTemporaryFile
 import jsonlines
 import requests
 import pprint
+import os
 from scrapy.exceptions import DropItem
 from scrapy.mail import MailSender
 
@@ -22,8 +23,8 @@ class FacebookEventsPipeline(object):
         spider.crawler.stats.set_value('events_spider/pipeline/events_total_count', event_count)
         spider.logger.debug('Processed {} events through pipeline'.format(event_count))
 
-        # if os.getenv('ENV') == 'production':
-        self.send_summary_email(spider)
+        if os.getenv('ENV') == 'production':
+            self.send_summary_email(spider)
 
     # Buffer to file
     def process_item(self, item, spider):

@@ -8,10 +8,11 @@
 import scrapy
 import re
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Join
+from scrapy.loader.processors import TakeFirst
 from facebook_scraper.lib.parse_dates import parse_date
 from scrapy.utils.markup import remove_tags
-import lxml.html.clean as clean
+from lxml import html
+from lxml.html.clean import Cleaner
 
 
 class FacebookEvent(scrapy.Item):
@@ -78,8 +79,13 @@ def description_out(self, value):
     if value:
         safe_attrs = {'src', 'alt', 'href', 'title', 'width', 'height'}
         kill_tags = ['object', 'iframe']
-        cleaner = clean.Cleaner(safe_attrs_only=True, safe_attrs=safe_attrs, kill_tags=kill_tags)
-        return cleaner.clean_html(value[0])
+        cleaner = Cleaner(safe_attrs_only=True, safe_attrs=safe_attrs, kill_tags=kill_tags)
+        cleaned = cleaner.clean_html(value[0])
+
+        doc = html.fromstring(cleaned)
+        doc.make_links_absolute('https://www.facebook.com/')
+
+        return html.tostring(doc).decode('utf-8')
     else:
         return None
 
