@@ -16,6 +16,14 @@ load_dotenv()
 STACKDRIVER_ENABLED = os.getenv('STACKDRIVER_ENABLED')
 STACKDRIVER_PROJECT_ID = os.getenv('STACKDRIVER_PROJECT_ID')
 
+MAIL_HOST = os.getenv('MAIL_HOST')
+MAIL_USER = os.getenv('MAIL_USER')
+MAIL_PASS = os.getenv('MAIL_PASS')
+MAIL_PORT = os.getenv('MAIL_PORT')
+MAIL_FROM = os.getenv('MAIL_FROM')
+MAIL_SSL = os.getenv('MAIL_SSL') == 'True'
+MAIL_TLS = os.getenv('MAIL_TLS') == 'True'
+
 BOT_NAME = 'facebook_scraper'
 
 SPIDER_MODULES = ['facebook_scraper.spiders']

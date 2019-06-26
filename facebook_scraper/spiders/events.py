@@ -27,7 +27,7 @@ class EventsSpider(CrawlSpider):
         if not hasattr(self, 'city') or not hasattr(self, 'country'):
             raise Exception('city and country are required spider arguments')
 
-        self.ng_api = NgAPI()
+        self.ng_api = NgAPI(logger=self.logger, stats=self.crawler.stats)
         self.create_proxy_pool()
 
         venue_ids = None
@@ -62,6 +62,11 @@ class EventsSpider(CrawlSpider):
             self.logger.debug('Login form found; logging in')
             return login_using_response(response, callback=self.parse, **req_kwargs)
 
+        if len(event_list):
+            self.crawler.stats.inc_value('events_spider/venues_with_events')
+        else:
+            self.crawler.stats.inc_value('events_spider/venues_without_events')
+
         # Fetch events
         for event in event_list:
             details_url = response.urljoin(event.attrib['href'])
@@ -78,10 +83,6 @@ class EventsSpider(CrawlSpider):
         country = response.meta['venue']['location']['country']
         city = response.meta['venue']['location']['city']
         loader.context['timezone'] = self.city_config[country][city]['timezone']
-
-        if not re.search(r"events/(\d+)\?", response.url):
-            self.logger.warn('URL not matching event url; skipping')
-            return
 
         event_id = re.compile(r"events/(\d+)\?").search(response.url).groups()
 
@@ -166,4 +167,6 @@ class EventsSpider(CrawlSpider):
             args['filters']['ids'] = str.join(',', ids)
 
         self.venues = self.ng_api.get_venues(**args)
+
+        self.crawler.stats.set_value('events_spider/venue_count', len(self.venues))
         self.logger.debug('Fetched {} venues'.format(str(len(self.venues))))

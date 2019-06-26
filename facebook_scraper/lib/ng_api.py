@@ -6,10 +6,13 @@ PAGE_SIZE = 50
 BASE_URL = os.environ.get('NG_API_HOST')
 TOKEN = os.environ.get('NG_API_TOKEN')
 
+
 class NgAPI:
-    def __init__(self):
+    def __init__(self, logger, stats):
         self.base_url = BASE_URL
         self.token = TOKEN
+        self.logger = logger
+        self.stats = stats
 
     def get_city_config(self):
         return self._request('/misc/city-config').json()
@@ -44,6 +47,19 @@ class NgAPI:
         url = self.base_url + uri
         headers = {'Authorization': 'Bearer ' + self.token}
         res = requests.request(method=method, url=url, headers=headers, **kwargs)
+
+        self.stats.inc_value('ng_api/request_count')
         if not res.status_code == requests.codes.ok:
+            body = None
+            try:
+                body = res.json()
+            except ValueError:
+                pass
+            extra = {'code': res.status_code, 'response': body}
+            self.logger.error('An API error occurred', extra=extra)
+            self.stats.inc_value('ng_api/error_count')
+            self.stats.inc_value('ng_api/error_status_{}'.format(str(res.status_code)))
+
             res.raise_for_status()
+
         return res
