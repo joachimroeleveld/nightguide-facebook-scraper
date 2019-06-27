@@ -1,6 +1,5 @@
 import logging
 from scrapy import FormRequest, Request
-from scrapy.exceptions import CloseSpider
 from facebook_scraper.lib.sheets import get_facebook_credentials
 import os
 
@@ -30,15 +29,12 @@ def login_using_response(response, callback, **kwargs):
         dont_filter=True,
         formxpath='//form[contains(@action, "login")]',
         formdata={'email': email, 'pass': password},
-        callback=lambda res: _check_logged_in(res, callback, **kwargs),
+        callback=lambda res: _handle_device_check(res, callback, **kwargs),
         **kwargs
     )
 
 
-def _check_logged_in(response, callback, **kwargs):
-    # Check for captcha
-    if 'checkpoint' in response.url:
-        raise CloseSpider('blocked_by_robot_check')
+def _handle_device_check(response, callback, **kwargs):
     # Handle 'save-device' redirection
     if response.xpath("//div/a[contains(@href,'save-device')]"):
         return FormRequest.from_response(

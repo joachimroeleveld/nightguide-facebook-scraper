@@ -1,14 +1,14 @@
 from scrapy import Request
 from scrapy.spiders import CrawlSpider
-import re
 import random
 import base64
 import os
 
-from facebook_scraper.items import FacebookEvent, FacebookEventLoader
-from facebook_scraper.lib.auth import login, login_using_response
+from facebook_scraper.lib.auth import login
 from facebook_scraper.lib.ng_api import NgAPI
 from facebook_scraper.lib.util import deep_merge
+from facebook_scraper.lib.auth import login_using_response
+from facebook_scraper.lib.parse.events import EventParser
 
 EVENTS_URL = 'https://mobile.facebook.com/{venue}/events'
 COOKIEJAR_PREFIX = 'fb_auth_'
@@ -46,11 +46,11 @@ class EventsSpider(CrawlSpider):
                 req_kwargs = self.get_request_conf()
                 req_kwargs['meta']['req_conf'] = req_kwargs.copy()
                 req_kwargs['meta']['venue'] = venue
-                yield Request(url=url, callback=self.parse, **req_kwargs)
+                yield Request(url=url, callback=self.parse_events_page, **req_kwargs)
 
         return [self.init(init_cb)]
 
-    def parse(self, response):
+    def parse_events_page(self, response):
         event_list = response.xpath("//div/a[contains(@href,'/events/')][1]")
         next_page_url = response.css('#m_more_friends_who_like_this a::attr(href)').get()
 
@@ -60,7 +60,7 @@ class EventsSpider(CrawlSpider):
 
         if response.xpath("//form[contains(@action,'login')]"):
             self.logger.debug('Login form found; logging in')
-            return login_using_response(response, callback=self.parse, **req_kwargs)
+            yield login_using_response(response, callback=self.parse_events_page, **req_kwargs)
 
         # If first event page
         if 'serialized_cursor' not in response.url:
@@ -72,37 +72,13 @@ class EventsSpider(CrawlSpider):
         # Fetch events
         for event in event_list:
             details_url = response.urljoin(event.attrib['href'])
-            yield Request(url=details_url, callback=self.parse_event, **req_kwargs)
+            event_parser = EventParser(self)
+            yield Request(url=details_url, callback=event_parser.parse, **req_kwargs)
 
         # Fetch next page
         if next_page_url:
             url = response.urljoin(next_page_url)
-            yield Request(url=url, callback=self.parse, **req_kwargs)
-
-    def parse_event(self, response):
-        loader = FacebookEventLoader(item=FacebookEvent(), response=response)
-
-        country = response.meta['venue']['location']['country']
-        city = response.meta['venue']['location']['city']
-        loader.context['timezone'] = self.city_config[country][city]['timezone']
-
-        event_id = re.compile(r"events/(\d+)\?").search(response.url).groups()
-
-        loader.add_value('id', event_id)
-        loader.add_value('venue_id', response.meta['venue']['id'])
-
-        loader.add_xpath("organiser_name", "//div[contains(text(),'More events at')]/text()")
-        loader.add_xpath('description', "//div[@id='unit_id_886302548152152']/div[2]")
-        loader.add_xpath('title', "//div[@id='cta_button_bar_wrapper']/preceding-sibling::div//h3/text()")
-        loader.add_xpath('location_name', "(//div[@id='event_summary']//table)[2]//td[2]/*[1]/div/text()")
-        loader.add_xpath('going_count', "//div[@id='unit_id_703958566405594']/div[1]/div[1]/div[2]/a/text()")
-        loader.add_xpath('interested_count', "//div[@id='unit_id_703958566405594']/div[1]/div[2]/div[2]/a/text()")
-        loader.add_css('image', "#event_header img::attr(src)")
-
-        loader.add_xpath('dates', "(//div[@id='event_summary']//table)[1]//td[2]/dd/*/*/*")
-        loader.add_xpath('dates', "(//div[@id='event_summary']//table)[1]//td[2]/*[1]/div/text()")
-
-        return loader.load_item()
+            yield Request(url=url, callback=self.parse_events_page, **req_kwargs)
 
     def get_request_conf(self):
         conf = {'meta': {}}

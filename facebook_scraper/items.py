@@ -8,8 +8,8 @@
 import scrapy
 import re
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst
-from facebook_scraper.lib.parse_dates import parse_date
+from scrapy.loader.processors import TakeFirst, MapCompose
+from facebook_scraper.lib.parse.dates import parse_date
 from scrapy.utils.markup import remove_tags
 from lxml import html
 from lxml.html.clean import Cleaner
@@ -24,8 +24,7 @@ class FacebookEvent(scrapy.Item):
     organiser_name = scrapy.Field()
     location_name = scrapy.Field()
     image = scrapy.Field()
-    interested_count = scrapy.Field()
-    going_count = scrapy.Field()
+    interested_counts = scrapy.Field()
     pass
 
 
@@ -43,36 +42,19 @@ def format_dates(self, dates):
 
 
 def dates_in(self, dates, loader_context):
-    def filter_non_dates(item):
-        lower = item.lower()
-        # Every Thursday, until 28 Jun
-        if "every" in lower:
-            return False
-        # 3 more dates
-        if "dates" in lower:
-            return False
-        # +7 more times
-        if "times" in lower:
-            return False
-        return True
-
     timezone = loader_context.get('timezone')
     sanitized = map(remove_tags, dates)
-    filtered = filter(filter_non_dates, sanitized)
-    parsed = map(lambda item: parse_date(item, timezone), filtered)
+    parsed = map(lambda item: parse_date(item, timezone), sanitized)
     return list(parsed)
 
 
-def count_in(self, value):
-    if value:
-        count = value[0]
-        multiplier = 1
-        if 'K' in count:
-            count = count.replace('K', '')
-            multiplier = 1000
-        return int(float(count) * multiplier)
-    else:
-        return None
+def count_out(value):
+    count = value
+    multiplier = 1
+    if 'K' in value:
+        count = count.replace('K', '')
+        multiplier = 1000
+    return int(float(count) * multiplier)
 
 
 def description_out(self, value):
@@ -106,5 +88,4 @@ class FacebookEventLoader(ItemLoader):
     dates_in = dates_in
     dates_out = format_dates
 
-    interested_count_in = count_in
-    going_count_in = count_in
+    interested_counts_out = MapCompose(count_out)

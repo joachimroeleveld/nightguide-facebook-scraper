@@ -73,17 +73,19 @@ class FacebookEventsPipeline(object):
         images = []
         for event in events:
             item = {
-                'dates': event['dates'],
+                'dates': [],
                 'facebook': {
                     'id': event['id'],
                     'description': event['description'].replace('\n', '\\n'),
                     'title': event['title'],
                 }
             }
-            if 'interested_count' in event:
-                item['facebook']['interestedCount'] = event['interested_count']
-            if 'going_count' in event:
-                item['facebook']['goingCount'] = event['going_count']
+            for date_index, date in enumerate(event['dates']):
+                date_copy = date.copy()
+                interested_count = event['interested_counts'][date_index]
+                if interested_count > 0:
+                    date_copy['interestedCount'] = interested_count
+                item['dates'].append(date_copy)
             if 'image' in event:
                 images.append((event['id'], event['image']))
             data.append(item)

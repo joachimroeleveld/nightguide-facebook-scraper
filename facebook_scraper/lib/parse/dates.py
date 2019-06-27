@@ -5,7 +5,7 @@ from dateutil import tz
 import logging
 
 SINGLE_DAY_PATTERN = r"^(\w+, \d+ \w+(?: \d{4})?|\w+|\d+ \w+(?: \d{4})?) (?:from |at )?(?:(\d+:\d{2})[^\d]*(\d+:\d{2})?)"
-DAY_RANGE_PATTERN = r"^(\d+ \w+(?: \d{4})?) at (\d+:\d{2}) – (\d+ \w+(?: \d{4})?) at (\d+:\d{2})"
+DAY_RANGE_PATTERN = r"^(\w+, \w+ \w+(?:,? \d{4})?|\w+|\w+ \w+(?:,? \d{4})?) (?:from |at )?(?:(\d+:\d{2}(?: (?:AM|PM)))[^\d]*(\d+:\d{2}(?: (?:AM|PM)))?)"
 
 
 def parse_date(date_string, timezone):
@@ -36,3 +36,18 @@ def parse_date_string_parts(tzinfo, day_from, time_from, time_to=None, day_to=No
     # No ending time
     else:
         return date_from,
+
+
+def is_non_date(item):
+    lower = item.lower()
+    words = [
+        # Every Thursday, until 28 Jun
+        'every',
+        # 3 more dates
+        'dates',
+        # +7 more times
+        'times',
+        # Until 23 Sep
+        'until'
+    ]
+    return len([word for word in words if word in lower]) > 0

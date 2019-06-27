@@ -6,6 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.exceptions import CloseSpider
 
 
 class FacebookScraperSpiderMiddleware(object):
@@ -82,6 +83,10 @@ class FacebookScraperDownloaderMiddleware(object):
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
+
+        # Check for captcha
+        if 'checkpoint' in response.url:
+            spider.crawler.engine.close_spider(spider, 'blocked_by_checkpoint')
 
         # Must either;
         # - return a Response object
