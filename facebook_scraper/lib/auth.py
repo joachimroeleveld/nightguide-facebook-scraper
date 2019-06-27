@@ -40,7 +40,7 @@ def _handle_device_check(response, callback, **kwargs):
         return FormRequest.from_response(
             response,
             formdata={'name_action_selected': 'dont_save'},
-            callback=lambda res=None: callback(),
+            callback=lambda res: callback(),
             **kwargs
         )
     else:

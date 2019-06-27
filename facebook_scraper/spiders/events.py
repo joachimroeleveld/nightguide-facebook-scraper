@@ -60,7 +60,7 @@ class EventsSpider(CrawlSpider):
 
         if response.xpath("//form[contains(@action,'login')]"):
             self.logger.debug('Login form found; logging in')
-            yield login_using_response(response, callback=self.parse_events_page, **req_kwargs)
+            yield login_using_response(response, callback=lambda: self.parse_events_page(response), **req_kwargs)
 
         # If first event page
         if 'serialized_cursor' not in response.url:
