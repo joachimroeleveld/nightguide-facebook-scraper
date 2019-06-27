@@ -39,8 +39,6 @@ class EventParser():
         main_date_field_xpath = "(//div[@id='event_summary']//table)[1]//td[2]/*[1]/div/text()"
         # Few dates (visible on same page)
         if not is_non_date(response.xpath(main_date_field_xpath).get()):
-            from scrapy.shell import inspect_response
-            inspect_response(response, self.spider)
             loader.add_xpath('dates', main_date_field_xpath)
             loader.add_xpath('interested_counts', "//div[@id='unit_id_703958566405594']/div[1]/div[2]/div[2]/a/text()")
             yield loader.load_item()
