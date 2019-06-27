@@ -128,7 +128,7 @@ class EventsSpider(CrawlSpider):
 
             kwargs = self.get_request_auth_conf(proxy_index)
             deep_merge(self.get_request_proxy_conf(proxy_index), kwargs)
-            return login(callback=lambda res: self.create_proxy_auth_sessions(callback, proxy_index + 1), **kwargs)
+            return login(callback=lambda: self.create_proxy_auth_sessions(callback, proxy_index + 1), **kwargs)
         else:
             return callback()
 
