@@ -24,8 +24,8 @@ class EventsSpider(CrawlSpider):
     city_config = {}
 
     def init(self, callback):
-        if not hasattr(self, 'city') or not hasattr(self, 'country'):
-            raise Exception('city and country are required spider arguments')
+        if not hasattr(self, 'page_slug'):
+            raise Exception('page_slug is a required spider argument')
 
         self.ng_api = NgAPI(logger=self.logger, stats=self.crawler.stats)
         self.create_proxy_pool()
@@ -134,11 +134,10 @@ class EventsSpider(CrawlSpider):
 
     def get_venues(self, ids):
         args = {
-            'fields': 'facebook.id,location.city,location.country',
+            'fields': 'facebook.id,pageSlug',
             'filters': {
                 'hasFb': '1',
-                'city': self.city,
-                'country': self.country,
+                'pageSlug': self.page_slug
             }
         }
         if ids:

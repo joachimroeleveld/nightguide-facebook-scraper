@@ -16,9 +16,7 @@ class EventParser():
     def parse(self, response):
         loader = FacebookEventLoader(item=FacebookEvent(), response=response)
 
-        country = response.meta['venue']['location']['country']
-        city = response.meta['venue']['location']['city']
-        loader.context['timezone'] = self.spider.city_config[country][city]['timezone']
+        loader.context['timezone'] = self.spider.city_config[self.spider.page_slug]['timezone']
 
         event_id = re.search(r"events/(\d+)\?", response.url)
         if not event_id:

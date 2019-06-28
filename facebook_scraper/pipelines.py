@@ -114,4 +114,4 @@ class FacebookEventsPipeline(object):
         body = spider.crawler.stats.get_stats()
         body = pprint.pformat(body)
         body = intro + body
-        mailer.send(to=['joachim@nightguide.app'], subject="{} FB event crawler results".format(spider.city), body=body)
+        mailer.send(to=['joachim@nightguide.app'], subject="{} FB event crawler results".format(spider.page_slug), body=body)

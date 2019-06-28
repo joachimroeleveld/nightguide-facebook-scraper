@@ -15,7 +15,6 @@ image:
   tag: 1.0.7
 
 cities:
-  - city: Utrecht
-    country: NL
+  - pageSlug: nl/utrecht
     schedule: "0 2 * * *"
 

@@ -15,10 +15,9 @@ Upload egg to Spiderkeeper
 
 ### spider arguments
 
- - `city` (required)
- - `country` (required)
+ - `page_slug` (required)
  
-E.g. `scrapy crawl events -a country=NL`
+E.g. `scrapy crawl events -a page_slug=nl/utrecht`
  
 ### Environment variables
 
