@@ -43,5 +43,17 @@ def _handle_device_check(response, callback, **kwargs):
             callback=lambda res: callback(),
             **kwargs
         )
+    # Handle 'GDPR' redirection
+    if response.xpath("//div/a[contains(@href,'gdpr/consent')]"):
+        url = response.xpath("//div/a[contains(@href,'gdpr/consent')]/@href").get()
+        return Request(url, dont_filter=True, callback=lambda res: _handle_gdpr_consent_step(res, callback, **kwargs))
+    else:
+        return callback()
+
+
+def _handle_gdpr_consent_step(response, callback, **kwargs):
+    if response.xpath("//div/a[contains(@href,'consent_step')]"):
+        url = response.xpath("//div/a[contains(@href,'conset_step')]/@href").get()
+        return Request(url, dont_filter=True, callback=lambda res: _handle_gdpr_consent_step(res, callback, **kwargs))
     else:
         return callback()

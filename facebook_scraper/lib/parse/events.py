@@ -28,7 +28,9 @@ class EventParser():
         loader.add_value('id', event_id)
         loader.add_value('venue_id', response.meta['venue']['id'])
 
-        loader.add_xpath("organiser_name", "//div[contains(text(),'More events at')]/text()")
+        loader.add_value("organiser_name", response.meta['organiser_name'])
+        loader.add_xpath("organiser_name",  # Venue name in "About the Venue block"
+                         "//div[@id='unit_id_540610469432174']//a[contains(@href, 'map')]/preceding-sibling::*[2]/text()")
         loader.add_xpath('description', "//div[@id='unit_id_886302548152152']/div[2]")
         loader.add_xpath('title', "//div[@id='cta_button_bar_wrapper']/preceding-sibling::div//h3/text()")
         loader.add_xpath('location_name', "(//div[@id='event_summary']//table)[2]//td[2]/*[1]/div/text()")

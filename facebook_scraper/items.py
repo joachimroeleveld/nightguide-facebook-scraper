@@ -6,7 +6,6 @@
 # https://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
-import re
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, MapCompose
 from facebook_scraper.lib.parse.dates import parse_date
@@ -61,7 +60,7 @@ def description_out(self, value):
     if value:
         safe_attrs = {'src', 'alt', 'href', 'title', 'width', 'height'}
         kill_tags = ['object', 'iframe']
-        cleaner = Cleaner(safe_attrs_only=True, safe_attrs=safe_attrs, kill_tags=kill_tags)
+        cleaner = Cleaner(safe_attrs_only=True, add_nofollow=True, safe_attrs=safe_attrs, kill_tags=kill_tags)
         cleaned = cleaner.clean_html(value[0])
 
         doc = html.fromstring(cleaned)
@@ -72,16 +71,8 @@ def description_out(self, value):
         return None
 
 
-def organiser_name_in(self, name):
-    if name:
-        return re.search(r"events at (.*)", name[0]).groups()
-    return None
-
-
 class FacebookEventLoader(ItemLoader):
     default_output_processor = TakeFirst()
-
-    organiser_name_in = organiser_name_in
 
     description_out = description_out
 

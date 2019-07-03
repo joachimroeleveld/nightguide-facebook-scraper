@@ -5,8 +5,14 @@ import jsonlines
 import requests
 import pprint
 import os
+import re
 from scrapy.exceptions import DropItem
 from scrapy.mail import MailSender
+
+VENUE_LOCATION_MATCHERS = {
+    # DC10 Ibiza
+    '5d1afff3bd44b9001205a743': r'DC10(?: Ibiza)?'
+}
 
 
 class FacebookEventsPipeline(object):
@@ -46,7 +52,7 @@ class FacebookEventsPipeline(object):
                 spider.crawler.stats.inc_value('events_spider/pipeline/dropped_reason_missing_field_{}'.format(field))
             raise DropItem
 
-        if item.get('organiser_name') != item.get('location_name'):
+        if not self.check_matching_organiser_location(item):
             spider.crawler.stats.inc_value('events_spider/pipeline/dropped_reason_nonmatching_organiser_location')
             spider.logger.debug('Dropping item: organiser name and location name not equal')
             raise DropItem
@@ -59,6 +65,13 @@ class FacebookEventsPipeline(object):
             writer.write(dict(item))
 
         return item
+
+    def check_matching_organiser_location(self, item):
+        if item['venue_id'] in VENUE_LOCATION_MATCHERS:
+            matcher = VENUE_LOCATION_MATCHERS[item['venue_id']]
+            return re.search(matcher, item['location_name']) is not None
+        else:
+            return item['location_name'] == item['organiser_name']
 
     # Send result to API
     def handle_finished(self, venue_id, ng_api, spider):
@@ -114,4 +127,5 @@ class FacebookEventsPipeline(object):
         body = spider.crawler.stats.get_stats()
         body = pprint.pformat(body)
         body = intro + body
-        mailer.send(to=['joachim@nightguide.app'], subject="{} FB event crawler results".format(spider.page_slug), body=body)
+        mailer.send(to=['joachim@nightguide.app'], subject="{} FB event crawler results".format(spider.page_slug),
+                    body=body)

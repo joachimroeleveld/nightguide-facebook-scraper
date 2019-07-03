@@ -35,6 +35,7 @@ class EventsSpider(CrawlSpider):
             venue_ids = self.venue_ids.split(',')
         self.get_venues(ids=venue_ids)
 
+
         self.city_config = self.ng_api.get_city_config()
 
         return self.create_auth_sessions(callback)
@@ -57,6 +58,8 @@ class EventsSpider(CrawlSpider):
         req_kwargs = response.meta['req_conf'].copy()
         req_kwargs['meta']['req_conf'] = req_kwargs
         req_kwargs['meta']['venue'] = response.meta['venue']
+        req_kwargs['meta']['organiser_name'] = response.xpath(
+            "//div[@id='msite-pages-header-contents']//h1//span[1]/text()").get()
 
         if response.xpath("//form[contains(@action,'login')]"):
             self.logger.debug('Login form found; logging in')
@@ -74,6 +77,15 @@ class EventsSpider(CrawlSpider):
             details_url = response.urljoin(event.attrib['href'])
             event_parser = EventParser(self)
             yield Request(url=details_url, callback=event_parser.parse, **req_kwargs)
+
+        if hasattr(self, 'event_page_depth'):
+            if 'page_depth' in req_kwargs['meta']:
+                req_kwargs['meta']['event_page_depth'] += 1
+            else:
+                req_kwargs['meta']['event_page_depth'] = 1
+
+            if req_kwargs['meta']['event_page_depth'] == int(self.event_page_depth):
+                return
 
         # Fetch next page
         if next_page_url:
