@@ -42,8 +42,9 @@ def format_dates(self, dates):
 
 def dates_in(self, dates, loader_context):
     timezone = loader_context.get('timezone')
+    dates_are_correct = False if loader_context.get('dates_are_correct') is False else True
     sanitized = map(remove_tags, dates)
-    parsed = map(lambda item: parse_date(item, timezone), sanitized)
+    parsed = map(lambda item: parse_date(item, timezone, dates_are_correct), sanitized)
     return list(parsed)
 
 

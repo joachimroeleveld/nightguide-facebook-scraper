@@ -15,7 +15,7 @@ class NgAPI:
         self.stats = stats
 
     def get_city_config(self):
-        return self._request('/misc/city-config').json()
+        return self._request('/configs/name/cities').json()['payload']
 
     def update_venue_facebook_events(self, venue_id, events):
         uri = '/venues/{}/facebook-events'.format(venue_id)
@@ -25,6 +25,10 @@ class NgAPI:
         uri = '/events/facebook-events/{}/image'.format(fb_event_id)
         json = {'image': {'url': image_url}}
         self._request(uri, method='PUT', json=json)
+
+    def get_facebook_event(self, facebook_id):
+        uri = '/events/facebook-events/{}'.format(facebook_id)
+        return self._request(uri).json()
 
     def get_venues(self, filters={}, venues=[], **kwargs):
         query = {

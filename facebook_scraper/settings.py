@@ -31,7 +31,7 @@ NEWSPIDER_MODULE = 'facebook_scraper.spiders'
 
 LOG_LEVEL = 'DEBUG'
 
-USER_AGENT = 'Mozilla/5.0 (Maemo; Linux armv7l; rv:10.0.1) Gecko/20100101 Firefox/10.0.1 Fennec/10.0.1'
+USER_AGENT = 'Mozilla/5.0 (BlackBerry; U; BlackBerry 9800; en-US) AppleWebKit/534.8+ (KHTML, like Gecko) Version/6.0.0.450 Mobile Safari/534.8+'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False

@@ -6,7 +6,6 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-from scrapy.exceptions import CloseSpider
 
 
 class FacebookScraperSpiderMiddleware(object):
