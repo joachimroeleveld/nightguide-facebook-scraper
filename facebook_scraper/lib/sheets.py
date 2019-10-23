@@ -1,7 +1,6 @@
 from __future__ import print_function
 from googleapiclient.discovery import build
 import re
-import functools
 
 
 def get_facebook_credentials():

@@ -7,13 +7,17 @@ Build egg:
 
 Upload egg to Spiderkeeper
 
-## Configuration
-
 ### Google auth
 
 `facebook-scraper-sa` kubernetes secret has to contain Google application credentials.
 
-### spider arguments
+## Configuration
+
+### Service account
+
+To run the spider, it's needed to add `facebook-scaper` service account key as `google-key.json` at the root of the project.
+
+### Spider arguments
 
  - `page_slug` (required)
  - `without_images`
@@ -26,13 +30,6 @@ E.g. `scrapy crawl events -a page_slug=nl/utrecht`
 ### Environment variables
 
 Create `.env` under `/facebook_scraper`
-
-**Variables:**
-
- - `FB_ACCOUNTS` 
- - `PROXY_POOL=ip:port:un:pw`
- - `NG_API_HOST`
- - `NG_API_TOKEN`
 
 
 ## Luminati proxy
