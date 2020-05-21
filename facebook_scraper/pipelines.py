@@ -14,7 +14,9 @@ VENUE_LOCATION_MATCHERS = {
     '5d1afff3bd44b9001205a743': r'DC10(?: Ibiza)?',
     # Boat club
     '5d1affc9bd44b9001205a72e': r'(?:Cirque de la Nuit Ibiza|Ibiza Boat Club)',
-    '5d972c5197cb4200182954f3': r'Escape - Amsterdam'
+    '5d972c5197cb4200182954f3': r'Escape (- )?Amsterdam',
+    # Melkweg
+    '5da46c1621b9510012acfee2': r'(?:Melkweg Amsterdam|EncoreAmsterdam)'
 }
 
 

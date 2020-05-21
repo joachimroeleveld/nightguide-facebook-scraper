@@ -55,7 +55,7 @@ def parse_date_string_parts(timezone, day_from, time_from, time_to=None, day_to=
         date_to = dateparser.parse(str.join(' ', [day_to, time_to]), **parse_args) + date_delta
 
         # If on the same day after midnight
-        if same_day and time_to < time_from:
+        if same_day and date_to < date_from:
             date_to = date_to + datetime.timedelta(days=1)
 
         return date_from, date_to
