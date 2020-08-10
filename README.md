@@ -1,5 +1,7 @@
 # facebook-scraper
 
+[Scrapy](https://scrapy.org/) scraper that scrapes and normalizes data from Facebook events given a list of organisers. 
+
 ## Deployment
 
 Build egg:
